@@ -45,7 +45,7 @@
     font-weight:700;
 }
 input{
-    height: 35px;
+    height: 55px;
     width: 100%;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -55,6 +55,7 @@ input{
     background-color: #F5FAF9;
     
 }
+
 </style>
 </head>
 <body>
@@ -62,7 +63,7 @@ input{
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
             <div class="container">
                 <a class="navbar-brand" href="{{ url('/') }}">
-                    {{ config('app.name', 'Laravel') }}
+                    {{ config('app.name', 'MedxamDocumentation') }}
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
                     <span class="navbar-toggler-icon"></span>
@@ -78,21 +79,11 @@ input{
                     <ul class="navbar-nav ms-auto">
                         <!-- Authentication Links -->
                         @guest
-                            @if (Route::has('login'))
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
-                                </li>
-                            @endif
-
-                            @if (Route::has('register'))
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
-                                </li>
-                            @endif
+                        <li><a href="tel:237672076992" class="btn btn-warning rounded-3"> I need help</a></li>
                         @else
                             <li class="nav-item dropdown">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                    {{ Auth::user()->name }}
+                                    <i class="fa fa-user"></i> &nbsp;{{ Auth::user()->name }}
                                 </a>
 
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -118,5 +109,6 @@ input{
         </main>
     </div>
     @yield('page_scripts')
+    <footer class="text-center">&copy; <script>document.write(/\d{4}/.exec(Date())[0])</script> Medxam. All rights reserved</footer>
 </body>
 </html>

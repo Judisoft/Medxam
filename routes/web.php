@@ -23,9 +23,11 @@ Auth::routes();
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::resource('questions', QuestionsController::class);
 Route::post('questions/create', [App\Http\Controllers\QuestionsController::class, 'store'])->name('post.question');
-Route::put('questions/{question}/edit', [App\Http\Controllers\QuestionsController::class, 'update'])->name('edit.question');
+Route::put('questions/{id}/edit', [App\Http\Controllers\QuestionsController::class, 'update'])->name('edit.question');
+Route::get('questions/{id}/show', [App\Http\Controllers\QuestionsController::class, 'show'])->name('show.question');
 Route::post('questions/', [App\Http\Controllers\QuestionsController::class, 'index'])->name('index.question');
 Route::get('download', [App\Http\Controllers\QuestionsController::class, 'download'])->name('download');
+Route::delete('questions/{id}/delete', [App\Http\Controllers\QuestionsController::class, 'destroy'])->name('delete.question');
 
 //Routes for Questions
 //Route::get('questions/create', 'QuestionsController@create');

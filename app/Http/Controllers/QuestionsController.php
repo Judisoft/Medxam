@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 //use Illuminate\Http\Requests\QuestionsRequest;
 use App\Models\Question;
+use Illuminate\Support\Facades\Storage;
 use Auth;
 use File;
 use Response;
+use Redirect;
 
 class QuestionsController extends Controller
 {
@@ -22,7 +24,7 @@ class QuestionsController extends Controller
      */
     public function index()
     {
-        $questions = Question::all();
+        $questions = Question::orderBy('id', 'desc')->get();
         $biology_questions = Question::where('subject', 'biology')->get();
         $chemistry_questions = Question::where('subject', 'chemistry')->get();
         $physics_questions = Question::where('subject', 'biology')->get();
@@ -93,7 +95,10 @@ class QuestionsController extends Controller
         $question->D = $request->input('D');
         $question->answer = $request->input('answer');
         $question->typed_by = Auth::user()->name;
-        $question->image = $fileNameToStore; // [alternatice] $request->file('image')->store('photos');
+        $question->user_id = Auth::user()->id;
+        if($request->image != '') {
+            $question->image = $fileNameToStore;
+        }
         $question->save();
         //dd($question);
         return back()->with('success', "Question uploaded successfully");
@@ -107,7 +112,8 @@ class QuestionsController extends Controller
      */
     public function show($id)
     {
-        //
+        $question = Question::find($id);
+        return view('questions.show', compact('question'));
     }
 
     /**
@@ -119,6 +125,10 @@ class QuestionsController extends Controller
     public function edit($id)
     {
         $question = Question::find($id);
+        if (auth()->user()->id !== $question->user_id)
+        {
+            return back()->with('error', 'You do not have permission to edit this question');
+        }
         return view('questions.edit', compact('question'));
     }
 
@@ -127,9 +137,10 @@ class QuestionsController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Models\Question  $question
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Question $question)
+    public function update(Request $request, $id)
     {
         {
             $validated = $request->validate(
@@ -150,13 +161,6 @@ class QuestionsController extends Controller
             // Handle file upload
             if($request->image != '')
             {
-
-                //code for remove old file
-                if($question->image != ''  && $question->image != null){
-                    $old_file = $request->file('image')->storeAs('public/question_images', $question->image);
-                    unlink($old_file);
-                }
-                //Upload file
                 $filenameWithExt = $request->file('image')->getClientOriginalName();
                 //Get just filename
                 $filename=pathinfo($filenameWithExt, PATHINFO_FILENAME);
@@ -167,10 +171,9 @@ class QuestionsController extends Controller
                 $path=$request->file('image')->storeAs('public/question_images', $fileNameToStore);
 
                 //for update in table
-                $question->update(['image' => $fileNameToStore]);
                     
             }
-            $question = new Question;
+            $question = Question::Find($id);
             $question->subject = $request->input('subject');
             $question->content = $request->input('content');
             $question->topic = $request->input('topic');
@@ -181,7 +184,10 @@ class QuestionsController extends Controller
             $question->D = $request->input('D');
             $question->answer = $request->input('answer');
             $question->typed_by = Auth::user()->name;
-            $question->image = $fileNameToStore; // [alternatice] $request->file('image')->store('photos');
+            $question->user_id = Auth::user()->id;
+            if($request->image != '') {
+                $question->image = $fileNameToStore;
+            }
             $question->save();
             //dd($question);
             return back()->with('success', "Question updated successfully");
@@ -196,7 +202,22 @@ class QuestionsController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $question = Question::find($id);
+
+        if (auth()->user()->id !== $question->user_id)
+        {
+            return back()->with('error', 'You do not have permission to delete this question');
+        }
+
+        if($question->image !== null)
+        {
+            Storage::delete('/storage/app/public/question_images/'.$question->image);
+        }
+
+        $question->delete();
+
+        return back()->with('success', 'Question deleted');
+
     }
 
     public function download()
